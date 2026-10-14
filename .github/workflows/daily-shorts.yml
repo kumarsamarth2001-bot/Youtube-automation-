@@ -1,0 +1,39 @@
+
+name: Daily Shorts
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 3 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg espeak fonts-dejavu-core
+          pip install -r requirements.txt
+
+      - name: Generate Short
+        run: python -m src.main
+
+      - name: Save video
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-short
+          path: output/short.mp4
+          retention-days: 3
+          
